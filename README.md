@@ -1,14 +1,13 @@
 # Pixel shader Raytracer:
 
-## Instrucciones de instalacion
+## Raytracer interactivo usando opengl, programado con GLSL (utilizando pixel shader).
 
-* Hacer click en programa Interactive_raytracer_setup, seguir instrucciones. Se instalara y aparecera un icono en el escritorio *
+**instrucciones de uso:**
 
-Raytracer interactivo usando opengl, programado con GLSL (utilizando pixel shader).
+- 4 esferas en pantalla, dos de las cuales son reflectivas
+- 2 luces mas ambiente
+- 3 esferas en constante movimiento (orbita circular)
+- Un nivel de recursion de 3 (para reflexion)
+- Sombras implementadas
 
-instrucciones de uso:
-
-1- 4 esferas en pantalla, Materiales Lambert y BlinnPhong.
-2- 2 luces mas ambiente.
-3- 3 esferas en constante movimiento (orbita circular).
-5- Con espacio, la camara se mueve hacia una esfera y luego vuelve.
+- Con **espacio**, la camara se mueve hacia una esfera y luego vuelve.
