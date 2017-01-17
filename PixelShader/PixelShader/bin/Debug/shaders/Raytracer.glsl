@@ -78,8 +78,8 @@ const Material[mat_count] materials = Material[mat_count](
 	Material(+1, 3,  vec3(1.0f, 1.0f, 0.0f),  true,  0.0f, 0.0f),		// yellow lambert		3
 	Material(+1, 4,  vec3(1.0f, 1.0f, 1.0f),  true,  0.0f, 0.0f),		// white lambert		4
 	Material(+1, 5,  vec3(0.2f, 0.2f, 0.2f),  true,  0.0f, 0.0f),		// gray lambert			5
-	Material(-1, 6,  vec3(1.0f, 1.0f, 1.0f),  false, 0.0f, 100.0f),		// white_bp_100			6
-	Material(-1, 7,  vec3(1.0f, 1.0f, 1.0f),  false, 0.0f, 1000.0f),	// white_bp_1000		7
+	Material(-1, 6,  vec3(1.0f, 1.0f, 1.0f),  false, 0.0f, 10.0f),		// white_bp_10			6
+	Material(-1, 7,  vec3(1.0f, 1.0f, 1.0f),  false, 0.0f, 100.0f),		// white_bp_100			7
 	Material(-1, 8,  vec3(0.0f, 0.0f, 1.0f),  false, 0.0f, 1000.0f),	// blue_bp_1000			8	 
 	Material(+0, 9,  vec3(1.0f, 1.0f, 1.0f),  false, 0.0f, 0.0f),		// white_mirror			9
 	Material(+0, 10, vec3(1.0f, 1.0f, 1.0f),  false, 0.1f, 0.0f),		// white_glossy_mirror	10
@@ -89,11 +89,10 @@ const Material[mat_count] materials = Material[mat_count](
 
 //-1 en vector de indices quiere decir que no tiene asignado ese material aun.
 Sphere[obj_count] objects = Sphere[obj_count](
-	Sphere(0, vec3( sin(time), cos(time), 1.0f),			1.0f, vec3( 2,  6,  9)),
-	Sphere(1, vec3( 2*sin(2*time), 4*cos(2*time), 0.0f),	0.5f, vec3( 1,  8, -1)),
-	Sphere(2, vec3(3f*cos(5*time), 0, 3*sin(5*time)),		0.3f, vec3( 3, -1, -1)),
-	Sphere(5, vec3(-20f, -20.0f, -20.0f),					30.0, vec3( 5, -1,  9))
-	//Sphere(4, vec3(-20f,  20.0f,  20.0f),					30.0, vec3( 0, -1,  9))
+	Sphere(0, vec3( sin(time), cos(time), 1.0f),			1.0f, vec3( 2,  6, -1)),
+	Sphere(1, vec3( 2*sin(1*time), 4*cos(1*time), 0.0f),	0.5f, vec3( 1,  8, -1)),
+	Sphere(2, vec3(3f*cos(2*time), 0, 3*sin(2*time)),		0.3f, vec3( 3,  7, -1)),
+	Sphere(5, vec3(-20f, -20.0f, -20.0f),					30.0, vec3( 4,  6, -1))
 );
 
 //La escena, consta de camara, luces y objetos, ademas de otros atributos.
@@ -218,7 +217,6 @@ void light_shade_manager(Scene scene, vec3 obj_point, vec3 vision_dir, vec3 norm
     }
 }
 
-///*
 //Se le pasa el punto y objeto y revisa las luces a ver como se deberia mostrar el material que tiene:
 vec3 material_management_2(Scene scene, Sphere sphere, vec3 e, vec3 d, vec3 obj_point, vec3 normal)
 {
@@ -291,15 +289,15 @@ void reflection(Scene scene, Sphere obj, vec3 obj_point, vec3 d, vec3 normal, fl
 	vec3 r_reflex = normalize(d - 2.0f * dot(d, normal) * normal);
 	vec3 q_reflex = obj_point + 0.001f * r_reflex;
 	vec3 refc = reflective.color;
-	bool intersect = false;
-	float t = 0.0f;
 	
 	//Id -1 en esfera significara que es null----------------------------------
+	bool intersect = false;
+	float t = 0.0f;
 	Sphere closest_obj = Sphere(-1, vec3(0.0f, 0.0f, 0.0f), 1.0f, vec3(0,0,0));
 	vec3 new_obj_normal = vec3(0.0f, 0.0f, 0.0f);
 	float closest_t = 0.0f;
 
-	for (int r = 0; r < recursions; r++)
+	for (int r = recursions; r >= 0; r--)
 	{
 		//Para cada objeto, debere ver si el rayo intersecta:
 		for(int i = 0; i < obj_count; i++)
@@ -319,35 +317,55 @@ void reflection(Scene scene, Sphere obj, vec3 obj_point, vec3 d, vec3 normal, fl
 			}
 		}
 
-		int ref_rec = scene.maxReflectionRecursions;
-		if (closest_obj.id != -1 && (reflex_recursions < 0 || reflex_recursions > 0))
+		if (closest_obj.id != -1)
 		{
-			vec3 new_d = normalize(d + r_reflex);
+			vec3 new_d = normalize(r_reflex);
 			vec3 new_obj_point = q_reflex + closest_t * r_reflex;
-		
-			if (reflex_recursions < 0)
-				obj_reflection_color = material_management_2(scene, closest_obj, q_reflex, r_reflex, new_obj_point, new_obj_normal); 
-			else
-				obj_reflection_color = material_management_2(scene, closest_obj, q_reflex, r_reflex, new_obj_point, new_obj_normal); 
-
-			obj_reflection_color = vec3(obj_reflection_color.r * refc.r, obj_reflection_color.g * refc.g, obj_reflection_color.b * refc.b);
 			
-			//EXPERIMENTO PARA REEMPLAZAR RECURSION:
-			r_reflex = normalize(r_reflex - 2.0f * dot(r_reflex, new_obj_normal) * new_obj_normal);
-			q_reflex = new_obj_point + 0.001f * r_reflex;
-			intersect = false; 
-			t = 0.0f;
-			new_obj_normal = vec3(0.0f, 0.0f, 0.0f);
-			closest_t = 0.0f;
-
+			//material_management_2(Scene scene, Sphere sphere, vec3 e, vec3 d, vec3 obj_point, vec3 normal)
+			if (r == recursions)
+				obj_reflection_color = material_management_2(scene, closest_obj, q_reflex, r_reflex, new_obj_point, new_obj_normal);
+			else
+				obj_reflection_color *= material_management_2(scene, closest_obj, q_reflex, r_reflex, new_obj_point, new_obj_normal);
+			obj_reflection_color = vec3(obj_reflection_color.r * refc.r, obj_reflection_color.g * refc.g, obj_reflection_color.b * refc.b);
+			//obj_reflection_color = normalize(obj_reflection_color);
+			
 			//Esto es para que pare cuando el objeto que refleja no tiene reflexion:
-			if (closest_obj.material_index[2] == -1) break;
+			if (closest_obj.material_index[2] == -1) 
+				break;
+			else
+			{
+				obj =  closest_obj;
+				d = new_d;
+				obj_point = new_obj_point;
+				normal = new_obj_normal;
+
+				r_reflex = normalize(d - 2.0f * dot(d, normal) * normal);
+				q_reflex = obj_point + 0.001f * r_reflex;
+				
+				for (int i = 0; i < 3; i++)
+				{
+					if (obj.material_index[i] != -1)
+					{
+						Material mat = materials[obj.material_index[i]];
+						if (mat.type == 0)
+							reflective = mat;
+					}
+				}
+				
+				refc = reflective.color;
+				closest_obj = Sphere(-1, vec3(0.0f, 0.0f, 0.0f), 1.0f, vec3(0,0,0));
+				new_obj_normal = vec3(0.0f, 0.0f, 0.0f);
+				closest_t = 0.0f;
+				intersect = false; 
+				t = 0.0f;
+			}
 		}
 		else
 		{
 			//Este seria el caso en que no choca con nada, por lo que refleja la luz de fondo:
 			vec3 bgc = scene.backgroundColor;
-			obj_reflection_color = vec3(bgc[0] * reflective.color[0], bgc[1] * reflective.color[1], bgc[2] * reflective.color[2]);
+			obj_reflection_color = vec3(bgc[0] * obj_reflection_color.r, bgc[1] * obj_reflection_color.g, bgc[2] * obj_reflection_color.b);
 			break;
 		}
 	}
@@ -431,7 +449,7 @@ vec4 material_management(Scene scene, Sphere sphere, vec3 e, vec3 d, vec3 obj_po
     if (using_reflective)
         obj_color += obj_reflective_color;
    
-    return vec4(obj_color, 1.0f);
+    return vec4((obj_color), 1.0f);
 }
 
 
@@ -499,48 +517,7 @@ vec4 raycast(Scene scene)
 
 	//Posicion en espacio mundo de el pixel (actual) por el que esta pasando el rayo que viene desde la camara:
 	vec3 pix_pos = camera.position + iu*u + jv*v + kw*w;
-	
-	/*//MULTIPLE-RAYS: Define los puntos por los que pasaran los rayos:
-	int ray_count = int(sqrt(ray_count_pow2));
-	vec3[ray_count_pow2] ray_array;
-	float iu2, jv2 = 0.0f;
-	int index = 0;
-	for (int i1 = 1; i1 <= ray_count; i1++)
-	{
-		jv2 = (jv - pix_height / 2.0f) + i1 * (pix_height / (ray_count + 1.0f));
-		for (int j1 = 1; j1 <= ray_count; j1++)
-		{
-			iu2 = (iu - pix_width / 2.0f) + j1 * (pix_width / (ray_count + 1.0f));
-			vec3 pixelPos  = e + (iu2 * u) + (jv2 * v) + (kw * w);
-			ray_array[index++] = pixelPos;
-		}
-	}
 
-	//Multiples rayos. Por cada uno, vera con que objetos chocan:
-    vec3[ray_count_pow2] rayImgData;
-    for (int n_ray = 0; n_ray < ray_count_pow2; n_ray++)
-    {
-        //Define origen de forma aleatoria, y usando define la d que corresponda segun el arreglo y el origen:
-        float arg = scene.camera.lensize; /// 2.0f;
-
-        //Este se compara contra t, y va a decidir que objeto se pinta y cual no para un mismo pixel.
-        float distance_ray = 0.0f;
-
-        //Obtengo el nuevo origen y, de acuerdo a esto, el nuevo d:
-        vec3 curr_e = e + ((-0.5f + rand*0.5f) * arg) * u + ((-0.5f + rand*0.5f) * arg) * v;
-        vec3 curr_d = normalize(ray_array[n_ray] - curr_e);
-
-        //Ahora, para cada objeto, debere ver si el rayo intersecta:
-        for (int o = 0; o < obj_count; o++)
-			paint_sphere(objects[o], scene, curr_d, curr_e, distance_ray, pixel_data, n_ray, rayImgData);
-    }
-
-	//Promedia los rayos y lo guarda en image_data:
-    for (int i2 = 0; i2 < ray_count_pow2; i2++)
-        pixel_data += rayImgData[i2];
-    pixel_data /= ray_count_pow2;
-	//*/
-	
 	//Y obtenida la posicion del pixel, obtengo la direccion d del rayo:
 	vec3 d = normalize(pix_pos - e);
 
@@ -552,7 +529,7 @@ vec4 raycast(Scene scene)
 	{
 		Sphere s = objects[x];
 		paint_sphere(s, scene, d, e, distance_ray, pixel_data, 0);
-	}//*/
+	}
 	
 	return pixel_data;
 }

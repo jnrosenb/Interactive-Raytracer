@@ -1,7 +1,11 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixelShader", "PixelShader\PixelShader.csproj", "{F9E1D89F-5253-407A-8863-C9DAA6AF8EB6}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Interactive_raytracer_setup", "Interactive_raytracer_setup\Interactive_raytracer_setup.vdproj", "{B13E019B-B200-4C29-8999-31600BC8CF31}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,6 +17,8 @@ Global
 		{F9E1D89F-5253-407A-8863-C9DAA6AF8EB6}.Debug|x86.Build.0 = Debug|x86
 		{F9E1D89F-5253-407A-8863-C9DAA6AF8EB6}.Release|x86.ActiveCfg = Release|x86
 		{F9E1D89F-5253-407A-8863-C9DAA6AF8EB6}.Release|x86.Build.0 = Release|x86
+		{B13E019B-B200-4C29-8999-31600BC8CF31}.Debug|x86.ActiveCfg = Debug
+		{B13E019B-B200-4C29-8999-31600BC8CF31}.Release|x86.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
